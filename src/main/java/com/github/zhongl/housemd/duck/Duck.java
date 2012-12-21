@@ -21,6 +21,7 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.jar.JarFile;
 
 /**
  * @author <a href="mailto:zhong.lunfu@gmail.com">zhongl</a>
@@ -31,6 +32,8 @@ public class Duck {
         URL agentJar = new File(parts[0]).toURI().toURL();
         String telephoneClassName = parts[1];
         int port = Integer.parseInt(parts[2]);
+
+        instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(new File(agentJar.toURI())));
 
         ClassLoader classLoader = new URLClassLoader(new URL[]{agentJar}) {
             @Override

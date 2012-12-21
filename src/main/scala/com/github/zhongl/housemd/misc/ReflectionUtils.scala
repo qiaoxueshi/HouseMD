@@ -79,7 +79,8 @@ object ReflectionUtils {
   def loadOrDefine(clazz: Class[_], inClassLoader: ClassLoader) = {
     val name = clazz.getName
     try {
-      inClassLoader.loadClass(name)
+      val loader = Option(inClassLoader) getOrElse Thread.currentThread().getContextClassLoader
+      loader.loadClass(name)
     } catch {
       case e: ClassNotFoundException =>
         import Utils._

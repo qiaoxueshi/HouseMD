@@ -102,9 +102,9 @@ class TransformCommandSpec extends FunSpec with ShouldMatchers with AdviceReflec
       }
     }
 
-    ignore("should not probe class loaded by boot classloader") {
+    it("should probe class loaded by boot classloader") {
       parseAndRun("String") { out =>
-        out.split("\n").head should be("WARN : Skip " + classOf[String] + " loaded from bootclassloader")
+        out.split("\n").head should be("INFO : Probe " + classOf[String])
       }
     }
 
@@ -121,6 +121,15 @@ class TransformCommandSpec extends FunSpec with ShouldMatchers with AdviceReflec
       parseAndRun("Duck") { out =>
         out.split("\n") should {
           contain("WARN : Skip " + classOf[Duck] + " belongs to HouseMD.")
+          contain("No matched class")
+        }
+      }
+    }
+
+    it("should not probe classes ThreadLocal") {
+      parseAndRun("ThreadLocal") { out =>
+        out.split("\n") should {
+          contain("WARN : Skip " + classOf[ThreadLocal] + " because tracing it could cause stack overflow.")
           contain("No matched class")
         }
       }

@@ -52,9 +52,9 @@ class Transform extends ((Instrumentation, Filter, Seconds, Int, Loggable, Hook)
       def isNotInterface = skipClass("") { _.isInterface }
 
       @inline
-      def isNotFromBootClassLoader = skipClass("loaded from bootclassloader") { isFromBootClassLoader(_) }
+      def isNotThreadLocalOrInternal = skipClass("because tracing it could cause stack overflow") { _.getName.startsWith("java.lang.ThreadLocal") }
 
-      filter(c) && isNotBelongsHouseMD && isNotInterface //&& isNotFromBootClassLoader
+      filter(c) && isNotBelongsHouseMD && isNotInterface && isNotThreadLocalOrInternal
     }
 
     if (candidates.isEmpty) {
@@ -137,7 +137,6 @@ class Transform extends ((Instrumentation, Filter, Seconds, Int, Loggable, Hook)
       }
     }
   }
-
 
   private def loadOrDefineAdviceClassFrom(loader: ClassLoader): Class[_] = loadOrDefine(classOf[Advice], loader)
 

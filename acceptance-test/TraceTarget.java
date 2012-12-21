@@ -16,11 +16,14 @@
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.lang.ArrayStoreException;
+import java.util.Arrays;
 
 public class TraceTarget {
 
     public static void main(String[] args) throws Exception {
         Object o = loadClass();
+        Arrays.asList(1,2).size();
 
         while (true) {
             addOne(0);
