@@ -54,6 +54,13 @@ public abstract class Advice {
     private static final Advice nullAdvice;
     private static final ClassLoader loader;
 
+    private static final ThreadLocal<Boolean> cycleAdviceFlag = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() {
+            return false;
+        }
+    };
+
     static {
         try {
             ON_METHOD_BEGIN = Advice.class.getMethod("onMethodBegin", String.class, String.class, String.class, Object.class, Object[].class);
@@ -78,6 +85,9 @@ public abstract class Advice {
     }
 
     public static void onMethodBegin(String className, String methodName, String descriptor, Object thisObject, Object[] arguments) {
+        if (cycleAdviceFlag.get()) return;
+        cycleAdviceFlag.set(true);
+
         Map<String, Object> context = new HashMap<String, Object>();
         context.put(CLASS, className);
         context.put(METHOD, methodName);
@@ -91,6 +101,8 @@ public abstract class Advice {
         context.put(THREAD, Thread.currentThread());
         invoke("enterWith", context);
         stackPush(context);
+
+        cycleAdviceFlag.remove();
     }
 
     private static void invoke(String name, Map<String, Object> context) {
@@ -103,10 +115,15 @@ public abstract class Advice {
     }
 
     public static void onMethodEnd(Object resultOrException) {
+        if (cycleAdviceFlag.get()) return;
+        cycleAdviceFlag.set(true);
+
         Map<String, Object> context = stackPop();
         context.put(STOPPED, System.currentTimeMillis());
         context.put(RESULT, resultOrException);
         invoke("exitWith", context);
+
+        cycleAdviceFlag.remove();
     }
 
     private static void stackPush(Map<String, Object> context) {

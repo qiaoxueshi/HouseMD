@@ -19,12 +19,10 @@ package com.github.zhongl.housemd.instrument
 import java.lang.instrument.{ClassFileTransformer, Instrumentation}
 import java.security.ProtectionDomain
 import java.util.concurrent.atomic.AtomicInteger
-import actors.Actor._
 
 import com.github.zhongl.housemd.misc.ReflectionUtils._
 import com.github.zhongl.yascli.Loggable
 import java.lang.System.{currentTimeMillis => now}
-import actors.TIMEOUT
 import java.util
 
 /**
@@ -42,18 +40,18 @@ class Transform extends ((Instrumentation, Filter, Seconds, Int, Loggable, Hook)
 
       @inline
       def skipClass(description: String)(cause: Class[_] => Boolean) =
-        if (cause(c)) {log.warn("Skip %1$s %2$s" format(c, description)); false} else true
+        if (cause(c)) {log.warn("Skip %1$s %2$s" format(c, description)); false } else true
 
       @inline
-      def isNotBelongsHouseMD = skipClass("belongs to HouseMD") {_.getName.startsWith("com.github.zhongl.housemd")}
+      def isNotBelongsHouseMD = skipClass("belongs to HouseMD") { _.getName.startsWith("com.github.zhongl.housemd") }
 
       @inline
-      def isNotInterface = skipClass("") {_.isInterface}
+      def isNotInterface = skipClass("") { _.isInterface }
 
       @inline
-      def isNotFromBootClassLoader = skipClass("loaded from bootclassloader") {isFromBootClassLoader}
+      def isNotFromBootClassLoader = skipClass("loaded from bootclassloader") { isFromBootClassLoader(_) }
 
-      filter(c) && isNotBelongsHouseMD && isNotInterface && isNotFromBootClassLoader
+      filter(c) && isNotBelongsHouseMD && isNotInterface //&& isNotFromBootClassLoader
     }
 
     if (candidates.isEmpty) {
