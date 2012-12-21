@@ -24,6 +24,9 @@ import com.github.zhongl.housemd.misc.ReflectionUtils._
 import com.github.zhongl.yascli.Loggable
 import java.lang.System.{currentTimeMillis => now}
 import java.util
+import actors.TIMEOUT
+import actors.Actor._
+
 
 /**
  * @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a>
